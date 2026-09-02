@@ -1,0 +1,19 @@
+IR a la carpeta del proyecto
+
+python3 -m venv venv
+
+source venv/bin/activate
+
+uvicorn main:app
+
+Abre el navegador e ingresa a http://localhost:8000.
+
+    Usuario por defecto: admin
+
+    Contraseña por defecto: admin123
+
+
+
+SINO FUNCIONA EJECUTAR:
+pip install fastapi
+pip install uvicorn

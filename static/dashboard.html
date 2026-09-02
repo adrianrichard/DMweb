@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentalMatic - Panel Principal</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+        }
+        .sidebar {
+            width: 240px;
+            background-color: #1a252f;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+        .sidebar-header {
+            padding: 1.5rem;
+            background-color: #111820;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #0288d1;
+            text-align: center;
+        }
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+        }
+        .sidebar-menu li a {
+            display: block;
+            padding: 1rem 1.5rem;
+            color: #b8c7ce;
+            text-decoration: none;
+            border-bottom: 1px solid #2c3e50;
+            transition: background 0.2s;
+        }
+        .sidebar-menu li a:hover,
+        .sidebar-menu li a.active {
+            background-color: #0288d1;
+            color: #fff;
+        }
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid #2c3e50;
+            background-color: #111820;
+        }
+        .main-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #ccc;
+        }
+        .page-section {
+            display: none;
+        }
+        .page-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menú Lateral -->
+    <div class="sidebar">
+        <div class="sidebar-header">DentalMatic</div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="nav-link active" onclick="showPage('usuariosPage', event)">Usuarios</a></li>
+            <li><a href="#" class="nav-link" onclick="showPage('odontologosPage', event)">Odontólogos</a></li>
+            <li><a href="#" class="nav-link" onclick="showPage('pacientesPage', event)">Pacientes</a></li>
+            <li><a href="#" class="nav-link" onclick="showPage('turnosPage', event)">Turnos</a></li>
+            <li><a href="#" class="nav-link" onclick="showPage('odontogramasPage', event)">Odontogramas</a></li>
+            <li><a href="#" class="nav-link" onclick="showPage('historiaPage', event)">Historia Clínica</a></li>
+        </ul>
+        <div class="sidebar-footer">
+            <button class="btn btn-danger" onclick="logout()" style="width: 100%;">Cerrar Sesión</button>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+        <div class="header-top">
+            <h2 id="sectionTitle">Gestión de Usuarios</h2>
+            <span id="userInfo" style="font-weight: bold; color: #555;">Cargando...</span>
+        </div>
+
+        <!-- Sección: USUARIOS -->
+        <div id="usuariosPage" class="page-section active">
+            <form id="usuarioForm" class="card" style="margin-bottom: 2rem;">
+                <h3>Nuevo Usuario</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>Nombre de Usuario</label><input type="text" id="u_username" required></div>
+                    <div class="form-group"><label>Contraseña</label><input type="password" id="u_password" required></div>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Usuario</label>
+                    <select id="u_tipo">
+                        <option value="administrador">Administrador</option>
+                        <option value="odontologo">Odontólogo</option>
+                        <option value="recepcionista">Recepcionista</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn">Guardar Usuario</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr><th>ID Usuario</th><th>Nombre de Usuario</th><th>Tipo</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+            </table>
+        </div>
+
+        <!-- Sección: ODONTÓLOGOS -->
+        <div id="odontologosPage" class="page-section">
+            <form id="odontologoForm" class="card" style="margin-bottom: 2rem;">
+                <h3>Nuevo Odontólogo</h3>
+                <div class="form-group"><label>Matrícula</label><input type="number" id="o_matricula" required></div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Nombre</label><input type="text" id="o_nombre" required></div>
+                    <div class="form-group"><label>Apellido</label><input type="text" id="o_apellido" required></div>
+                </div>
+                <button type="submit" class="btn">Guardar Odontólogo</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr><th>Matrícula</th><th>Apellido</th><th>Nombre</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tablaOdontologos"></tbody>
+            </table>
+        </div>
+
+        <!-- Sección: PACIENTES -->
+        <div id="pacientesPage" class="page-section">
+            <form id="pacienteForm" class="card" style="margin-bottom: 2rem;">
+                <h3>Nuevo Paciente</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>Nombre</label><input type="text" id="p_nombre" required></div>
+                    <div class="form-group"><label>Apellido</label><input type="text" id="p_apellido" required></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Domicilio</label><input type="text" id="p_domicilio"></div>
+                    <div class="form-group"><label>Teléfono</label><input type="number" id="p_telefono"></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Email</label><input type="email" id="p_email"></div>
+                    <div class="form-group"><label>Obra Social</label><input type="text" id="p_obrasocial"></div>
+                </div>
+                <div class="grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group"><label>N° Socio</label><input type="number" id="p_nrosocio"></div>
+                    <div class="form-group"><label>Fecha Nacimiento</label><input type="date" id="p_fechanacimiento" onchange="calcularEdad()"></div>
+                    <div class="form-group"><label>Edad (Años)</label><input type="number" id="p_edad" readonly style="background-color: #e9ecef; cursor: not-allowed;"></div>
+                </div>
+                <button type="submit" class="btn">Guardar Paciente</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr><th>Nombre</th><th>Apellido</th><th>Teléfono</th><th>Obra Social</th><th>N° Socio</th><th>Edad</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tablaPacientes"></tbody>
+            </table>
+        </div>
+
+        <!-- Sección: TURNOS -->
+        <div id="turnosPage" class="page-section">
+            <form id="turnoForm" class="card" style="margin-bottom: 2rem;">
+                <h3>Agendar Turno</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>Fecha</label><input type="date" id="t_fecha" required></div>
+                    <div class="form-group"><label>Hora</label><input type="time" id="t_hora" required></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Paciente</label><input type="text" id="t_paciente" required></div>
+                    <div class="form-group"><label>Matrícula Odontólogo</label><input type="number" id="t_odontologo" required></div>
+                </div>
+                <div class="form-group"><label>Prestación</label><input type="text" id="t_prestacion" required></div>
+                <button type="submit" class="btn">Agendar Turno</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr><th>Fecha</th><th>Hora</th><th>Paciente</th><th>Matrícula Odontólogo</th><th>Prestación</th></tr>
+                </thead>
+                <tbody id="tablaTurnos"></tbody>
+            </table>
+        </div>
+
+        <!-- Sección: ODONTOGRAMAS -->
+        <div id="odontogramasPage" class="page-section">
+            <form id="odontogramaForm" class="card" style="margin-bottom: 2rem;">
+                <h3>Registrar Odontograma</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>ID Odontograma</label><input type="number" id="od_id" required></div>
+                    <div class="form-group"><label>ID Paciente</label><input type="number" id="od_paciente" required></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>Fecha</label><input type="date" id="od_fecha" required></div>
+                    <div class="form-group"><label>Matrícula Odontólogo</label><input type="number" id="od_odontologo" required></div>
+                </div>
+
+                <h4 style="margin-top: 1rem;">Detalle de Diente</h4>
+                <div class="grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                    <div class="form-group"><label>N° Diente</label><input type="number" id="d_nro" placeholder="Ej: 18, 21, 46"></div>
+                    <div class="form-group"><label>Extracción</label><input type="text" id="d_extraccion" placeholder="SI / NO"></div>
+                    <div class="form-group"><label>Corona</label><input type="text" id="d_corona" placeholder="Tipo o estado"></div>
+                </div>
+
+                <button type="submit" class="btn">Guardar Odontograma</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr><th>ID Odontograma</th><th>ID Paciente</th><th>Fecha</th><th>Matrícula Odontólogo</th></tr>
+                </thead>
+                <tbody id="tablaOdontogramas"></tbody>
+            </table>
+        </div>
+
+        <!-- Sección: HISTORIA CLÍNICA -->
+        <div id="historiaPage" class="page-section">
+            <form id="prestacionForm" class="card" style="margin-bottom: 2rem;">
+                <h3>Registrar Prestación Médica</h3>
+                <div class="grid-2">
+                    <div class="form-group"><label>Tipo de Prestación</label><input type="text" id="pr_tipo" required></div>
+                    <div class="form-group"><label>Fecha</label><input type="date" id="pr_fecha" required></div>
+                </div>
+                <div class="grid-2">
+                    <div class="form-group"><label>ID Paciente</label><input type="number" id="pr_paciente" required></div>
+                    <div class="form-group"><label>Matrícula Odontólogo</label><input type="number" id="pr_odontologo" required></div>
+                </div>
+                <button type="submit" class="btn">Guardar Prestación</button>
+            </form>
+
+            <table>
+                <thead>
+                    <tr><th>ID Prestación</th><th>Tipo Prestación</th><th>Fecha</th><th>ID Paciente</th><th>Matrícula Odontólogo</th></tr>
+                </thead>
+                <tbody id="tablaPrestaciones">
+                    <tr><td colspan="5" style="text-align:center;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+// Validar Sesión
+let userSession = null;
+try {
+    userSession = JSON.parse(localStorage.getItem('user'));
+} catch (e) {
+    userSession = null;
+}
+
+if (!userSession || (!userSession.usuario && !userSession.nombre_usuario)) {
+    localStorage.removeItem('user');
+    window.location.href = '/';
+} else {
+    const nombre = userSession.usuario || userSession.nombre_usuario;
+    const tipo = userSession.tipo_usuario || 'Usuario';
+    document.getElementById('userInfo').innerText = `${nombre} (${tipo})`;
+}
+
+function logout() {
+    localStorage.removeItem('user');
+    window.location.href = '/';
+}
+
+function showPage(pageId, event) {
+    document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+
+    document.getElementById(pageId).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    const titles = {
+        'usuariosPage': 'Gestión de Usuarios',
+        'odontologosPage': 'Gestión de Odontólogos',
+        'pacientesPage': 'Gestión de Pacientes',
+        'turnosPage': 'Gestión de Turnos',
+        'odontogramasPage': 'Gestión de Odontogramas',
+        'historiaPage': 'Historia Clínica / Prestaciones'
+    };
+    document.getElementById('sectionTitle').innerText = titles[pageId] || 'DentalMatic';
+}
+
+// Calcular Edad Automáticamente
+function calcularEdad() {
+    const fechaNacInput = document.getElementById('p_fechanacimiento').value;
+    if (!fechaNacInput) return;
+
+    const fechaNac = new Date(fechaNacInput);
+    const hoy = new Date();
+
+    let edad = hoy.getFullYear() - fechaNac.getFullYear();
+    const mes = hoy.getMonth() - fechaNac.getMonth();
+
+    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+        edad--;
+    }
+
+    document.getElementById('p_edad').value = edad >= 0 ? edad : 0;
+}
+
+// --- USUARIOS ---
+async function cargarUsuarios() {
+    try {
+        const res = await fetch('/api/usuarios');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('tablaUsuarios');
+        tbody.innerHTML = '';
+        data.forEach(u => {
+            tbody.innerHTML += `<tr>
+                <td>${u.id_usuario}</td><td>${u.nombre_usuario}</td><td>${u.tipo_usuario}</td>
+                <td><button class="btn btn-danger" onclick="eliminarUsuario(${u.id_usuario})">Eliminar</button></td>
+            </tr>`;
+        });
+    } catch (err) { console.error(err); }
+}
+
+document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        const res = await fetch('/api/usuarios', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre_usuario: document.getElementById('u_username').value,
+                pass_usuario: document.getElementById('u_password').value,
+                tipo_usuario: document.getElementById('u_tipo').value
+            })
+        });
+        if (res.ok) {
+            document.getElementById('usuarioForm').reset();
+            cargarUsuarios();
+        }
+    } catch (err) { alert("Error de conexión"); }
+});
+
+async function eliminarUsuario(id) {
+    if (confirm("¿Eliminar usuario?")) {
+        await fetch(`/api/usuarios/${id}`, { method: 'DELETE' });
+        cargarUsuarios();
+    }
+}
+
+// --- ODONTÓLOGOS ---
+async function cargarOdontologos() {
+    try {
+        const res = await fetch('/api/odontologos');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('tablaOdontologos');
+        tbody.innerHTML = '';
+        data.forEach(o => {
+            tbody.innerHTML += `<tr>
+                <td>${o.matricula}</td><td>${o.apellido}</td><td>${o.nombre}</td>
+                <td><button class="btn btn-danger" onclick="eliminarOdontologo(${o.matricula})">Eliminar</button></td>
+            </tr>`;
+        });
+    } catch (err) { console.error(err); }
+}
+
+document.getElementById('odontologoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        const res = await fetch('/api/odontologos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                matricula: parseInt(document.getElementById('o_matricula').value),
+                nombre: document.getElementById('o_nombre').value,
+                apellido: document.getElementById('o_apellido').value
+            })
+        });
+        if (res.ok) {
+            document.getElementById('odontologoForm').reset();
+            cargarOdontologos();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "Error al guardar");
+        }
+    } catch (err) { alert("Error de conexión"); }
+});
+
+async function eliminarOdontologo(matricula) {
+    if (confirm("¿Eliminar odontólogo?")) {
+        await fetch(`/api/odontologos/${matricula}`, { method: 'DELETE' });
+        cargarOdontologos();
+    }
+}
+
+// --- PACIENTES ---
+async function cargarPacientes() {
+    try {
+        const res = await fetch('/api/pacientes');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('tablaPacientes');
+        tbody.innerHTML = '';
+        data.forEach(p => {
+            tbody.innerHTML += `<tr>
+                <td>${p.nombre}</td><td>${p.apellido}</td><td>${p.telefono || '-'}</td><td>${p.obrasocial || '-'}</td><td>${p.nrosocio || '-'}</td><td>${p.edad !== null ? p.edad : '-'}</td>
+                <td><button class="btn btn-danger" onclick="eliminarPaciente(${p.id})">Eliminar</button></td>
+            </tr>`;
+        });
+    } catch (err) { console.error(err); }
+}
+
+document.getElementById('pacienteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        const res = await fetch('/api/pacientes', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                nombre: document.getElementById('p_nombre').value,
+                apellido: document.getElementById('p_apellido').value,
+                domicilio: document.getElementById('p_domicilio').value,
+                telefono: document.getElementById('p_telefono').value ? parseInt(document.getElementById('p_telefono').value) : null,
+                email: document.getElementById('p_email').value,
+                obrasocial: document.getElementById('p_obrasocial').value,
+                nrosocio: document.getElementById('p_nrosocio').value ? parseInt(document.getElementById('p_nrosocio').value) : null,
+                edad: document.getElementById('p_edad').value ? parseInt(document.getElementById('p_edad').value) : 0,
+                fechanacimiento: document.getElementById('p_fechanacimiento').value
+            })
+        });
+        if (res.ok) {
+            document.getElementById('pacienteForm').reset();
+            cargarPacientes();
+        }
+    } catch (err) { alert("Error de conexión"); }
+});
+
+async function eliminarPaciente(id) {
+    if (confirm("¿Eliminar paciente?")) {
+        await fetch(`/api/pacientes/${id}`, { method: 'DELETE' });
+        cargarPacientes();
+    }
+}
+
+// --- TURNOS ---
+async function cargarTurnos() {
+    try {
+        const res = await fetch('/api/turnos');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('tablaTurnos');
+        tbody.innerHTML = '';
+        data.forEach(t => {
+            tbody.innerHTML += `<tr>
+                <td>${t.Fecha}</td><td>${t.Hora}</td><td>${t.Paciente}</td><td>${t.Odontologo}</td><td>${t.Prestacion}</td>
+            </tr>`;
+        });
+    } catch (err) { console.error(err); }
+}
+
+document.getElementById('turnoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try {
+        const res = await fetch('/api/turnos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fecha: document.getElementById('t_fecha').value,
+                hora: document.getElementById('t_hora').value,
+                paciente: document.getElementById('t_paciente').value,
+                odontologo: parseInt(document.getElementById('t_odontologo').value),
+                prestacion: document.getElementById('t_prestacion').value
+            })
+        });
+        if (res.ok) {
+            document.getElementById('turnoForm').reset();
+            cargarTurnos();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "Error al agendar turno");
+        }
+    } catch (err) { alert("Error de conexión"); }
+});
+
+// --- ODONTOGRAMAS ---
+async function cargarOdontogramas() {
+    try {
+        const res = await fetch('/api/odontogramas');
+        if (!res.ok) return;
+        const data = await res.json();
+        const tbody = document.getElementById('tablaOdontogramas');
+        tbody.innerHTML = '';
+        data.forEach(o => {
+            tbody.innerHTML += `<tr>
+                <td>${o.id_odontograma}</td><td>${o.dni_paciente}</td><td>${o.fecha}</td><td>${o.odontologo}</td>
+            </tr>`;
+        });
+    } catch (err) { console.error(err); }
+}
+
+document.getElementById('odontogramaForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const nroDiente = document.getElementById('d_nro').value;
+    const dientes = nroDiente ? [{
+        nro_diente: parseInt(nroDiente),
+        extraccion: document.getElementById('d_extraccion').value,
+        corona: document.getElementById('d_corona').value
+    }] : [];
+
+    try {
+        const res = await fetch('/api/odontogramas', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id_odontograma: parseInt(document.getElementById('od_id').value),
+                dni_paciente: parseInt(document.getElementById('od_paciente').value),
+                fecha: document.getElementById('od_fecha').value,
+                odontologo: parseInt(document.getElementById('od_odontologo').value),
+                dientes: dientes
+            })
+        });
+        if (res.ok) {
+            document.getElementById('odontogramaForm').reset();
+            cargarOdontogramas();
+        } else {
+            const err = await res.json();
+            alert(err.detail || "Error al guardar el odontograma");
+        }
+    } catch (err) { alert("Error de conexión"); }
+});
+
+// Carga Inicial
+cargarUsuarios();
+cargarOdontologos();
+cargarPacientes();
+cargarTurnos();
+cargarOdontogramas();
+</script>
+</body>
+</html>

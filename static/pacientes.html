@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DentalMatic - Gestión de Pacientes</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+<div class="header-bar">
+    <h1>DentalMatic - Módulo de Pacientes</h1>
+    <div>
+        <span id="userInfo"></span>
+        <button class="btn btn-danger" onclick="logout()" style="margin-left: 1rem;">Cerrar Sesión</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h3>Registrar Nuevo Paciente</h3>
+        <form id="pacienteForm" style="margin-top: 1rem;">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="nombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Apellido *</label>
+                    <input type="text" id="apellido" required>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="telefono">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email">
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="form-group">
+                    <label>Obra Social</label>
+                    <input type="text" id="obrasocial">
+                </div>
+                <div class="form-group">
+                    <label>N° Socio</label>
+                    <input type="text" id="nrosocio">
+                </div>
+            </div>
+            <button type="submit" class="btn">Guardar Paciente</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Listado de Pacientes</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Teléfono</th>
+                    <th>Obra Social</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaPacientes">
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+// Verificar Sesión
+const userSession = JSON.parse(localStorage.getItem('user'));
+if (!userSession) {
+    window.location.href = '/';
+} else {
+    document.getElementById('userInfo').innerText = `Usuario: ${userSession.usuario} (${userSession.tipo_usuario})`;
+}
+
+function logout() {
+    localStorage.removeItem('user');
+    window.location.href = '/';
+}
+
+async function cargarPacientes() {
+    const res = await fetch('/api/pacientes');
+    const pacientes = await res.json();
+    const tbody = document.getElementById('tablaPacientes');
+    tbody.innerHTML = '';
+
+    pacientes.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${p.id}</td>
+            <td>${p.nombre}</td>
+            <td>${p.apellido}</td>
+            <td>${p.telefono || '-'}</td>
+            <td>${p.obrasocial || '-'}</td>
+            <td>
+                <button class="btn btn-danger" onclick="eliminarPaciente(${p.id})">Eliminar</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+document.getElementById('pacienteForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const paciente = {
+        nombre: document.getElementById('nombre').value,
+        apellido: document.getElementById('apellido').value,
+        telefono: document.getElementById('telefono').value,
+        email: document.getElementById('email').value,
+        obrasocial: document.getElementById('obrasocial').value,
+        nrosocio: document.getElementById('nrosocio').value
+    };
+
+    const res = await fetch('/api/pacientes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(paciente)
+    });
+
+    if (res.ok) {
+        alert("Paciente creado con éxito");
+        document.getElementById('pacienteForm').reset();
+        cargarPacientes();
+    } else {
+        alert("Error al guardar paciente");
+    }
+});
+
+async function eliminarPaciente(id) {
+    if (confirm("¿Está seguro de eliminar este paciente?")) {
+        const res = await fetch(`/api/pacientes/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            cargarPacientes();
+        } else {
+            alert("No se pudo eliminar el paciente.");
+        }
+    }
+}
+
+// Carga inicial
+cargarPacientes();
+</script>
+
+</body>
+</html>

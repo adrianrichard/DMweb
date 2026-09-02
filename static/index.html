@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DentalMatic - Iniciar Sesión</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+    <div class="card login-card">
+        <h2 style="text-align: center; color: #0288d1; margin-bottom: 1.5rem;">DentalMatic</h2>
+        <h3 style="text-align: center; margin-bottom: 1rem; color: #555;">Iniciar Sesión</h3>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Usuario</label>
+                <input type="text" id="username" placeholder="Ingresa tu usuario" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
+            </div>
+            
+            <div id="errorMessage" style="color: #d32f2f; font-size: 0.9rem; margin-bottom: 1rem; display: none;"></div>
+            
+            <button type="submit" class="btn" style="width: 100%;">Ingresar</button>
+        </form>
+    </div>
+
+    <script>
+        // Validar sesión antes de redirigir
+        try {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                const user = JSON.parse(storedUser);
+                if (user && (user.usuario || user.nombre_usuario)) {
+                    window.location.href = '/dashboard';
+                } else {
+                    localStorage.removeItem('user');
+                }
+            }
+        } catch (e) {
+            localStorage.removeItem('user');
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const usernameInput = document.getElementById('username').value.trim();
+            const passwordInput = document.getElementById('password').value.trim();
+            const errorDiv = document.getElementById('errorMessage');
+
+            errorDiv.style.display = 'none';
+            errorDiv.innerText = '';
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput,
+                        password: passwordInput
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('user', JSON.stringify(data));
+                    window.location.href = '/dashboard';
+                } else {
+                    errorDiv.innerText = data.detail || 'Error al iniciar sesión';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.innerText = 'No se pudo conectar con el servidor. Revisa que el backend esté ejecutándose.';
+                errorDiv.style.display = 'block';
+            }
+        });
+    </script>
+
+</body>
+</html>
