@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DentalMatic - Odontólogos</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="header-bar">
+        <h1>DentalMatic - Odontólogos</h1>
+        <a href="/dashboard" class="btn">Volver al Dashboard</a>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h2>Registrar Odontólogo</h2>
+            <form id="odontologoForm" class="grid-2" style="margin-top: 1rem;">
+                <div class="form-group"><input type="text" id="o_nombre" placeholder="Nombre *" required></div>
+                <div class="form-group"><input type="text" id="o_apellido" placeholder="Apellido *" required></div>
+                <div class="form-group"><input type="text" id="o_matricula" placeholder="Matrícula *" required></div>
+                <div class="form-group"><input type="text" id="o_especialidad" placeholder="Especialidad"></div>
+                <div class="form-group"><input type="text" id="o_telefono" placeholder="Teléfono"></div>
+                <div class="form-group"><input type="email" id="o_email" placeholder="Email"></div>
+                <div><button type="submit" class="btn">Guardar Odontólogo</button></div>
+            </form>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Nombre</th><th>Matrícula</th><th>Especialidad</th><th>Teléfono</th></tr>
+                </thead>
+                <tbody id="tablaOdontologos"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        async function cargarOdontologos() {
+            const res = await fetch('/api/odontologos');
+            const data = await res.json();
+            document.getElementById('tablaOdontologos').innerHTML = data.map(o => 
+                `<tr><td>${o.id_odontologo}</td><td>${o.nombre} ${o.apellido}</td><td>${o.matricula}</td><td>${o.especialidad || '-'}</td><td>${o.telefono || '-'}</td></tr>`
+            ).join('');
+        }
+
+        document.getElementById('odontologoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch('/api/odontologos', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    nombre: document.getElementById('o_nombre').value.trim(),
+                    apellido: document.getElementById('o_apellido').value.trim(),
+                    matricula: document.getElementById('o_matricula').value.trim(),
+                    especialidad: document.getElementById('o_especialidad').value.trim() || null,
+                    telefono: document.getElementById('o_telefono').value.trim() || null,
+                    email: document.getElementById('o_email').value.trim() || null
+                })
+            });
+            if (res.ok) { e.target.reset(); cargarOdontologos(); }
+            else { const err = await res.json(); alert(err.detail || 'Error al guardar'); }
+        });
+
+        cargarOdontologos();
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Nuevo odontólogo' if modo == 'nuevo' else 'Editar odontólogo' }} - DENTALMATIC{% endblock %}
+{% block content %}
+<h2 class="mb-4">{{ 'Crear odontólogo' if modo == 'nuevo' else 'Actualizar odontólogo' }}</h2>
+
+<form method="post" novalidate style="max-width: 500px;">
+    {{ form.hidden_tag() }}
+
+    {% if modo == 'nuevo' %}
+    <div class="mb-3">
+        {{ form.matricula.label(class="form-label") }}
+        {{ form.matricula(class="form-control") }}
+        {% for error in form.matricula.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="mb-3">
+        <label class="form-label">Matrícula</label>
+        <input type="text" class="form-control" value="{{ odontologo.matricula }}" disabled>
+        <div class="form-text">La matrícula no se puede modificar una vez creado el odontólogo.</div>
+    </div>
+    {% endif %}
+
+    <div class="mb-3">
+        {{ form.apellido.label(class="form-label") }}
+        {{ form.apellido(class="form-control") }}
+        {% for error in form.apellido.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form.nombre.label(class="form-label") }}
+        {{ form.nombre(class="form-control") }}
+        {% for error in form.nombre.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <p class="text-muted small">* Campos obligatorios</p>
+
+    <div class="d-flex gap-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('odontologos.listado') }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

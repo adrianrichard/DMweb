@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DentalMatic - Historia Clínica</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="header-bar">
+        <h1>DentalMatic - Historia Clínica y Odontogramas</h1>
+        <a href="/dashboard" class="btn">Volver al Dashboard</a>
+    </div>
+    <div class="container">
+        <!-- Odontogramas -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <h2>Registro de Odontogramas</h2>
+            <form id="odontogramaForm" class="grid-2" style="margin-top: 1rem;">
+                <div class="form-group"><input type="number" id="od_id_paciente" placeholder="ID Paciente *" required></div>
+                <div class="form-group"><input type="date" id="od_fecha" required></div>
+                <div class="form-group"><input type="text" id="od_obs" placeholder="Observaciones clínicas"></div>
+                <div><button type="submit" class="btn">Guardar Odontograma</button></div>
+            </form>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>ID Paciente</th><th>Fecha</th><th>Observaciones</th></tr>
+                </thead>
+                <tbody id="tablaOdontogramas"></tbody>
+            </table>
+        </div>
+
+        <!-- Prestaciones Médicas -->
+        <div class="card">
+            <h2>Prestaciones y Tratamientos</h2>
+            <form id="prestacionForm" class="grid-2" style="margin-top: 1rem;">
+                <div class="form-group"><input type="text" id="pr_nombre" placeholder="Nombre del procedimiento *" required></div>
+                <div class="form-group"><input type="text" id="pr_descripcion" placeholder="Descripción"></div>
+                <div class="form-group"><input type="number" step="0.01" id="pr_costo" placeholder="Costo ($) *" required></div>
+                <div><button type="submit" class="btn">Guardar Prestación</button></div>
+            </form>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Procedimiento</th><th>Descripción</th><th>Costo</th></tr>
+                </thead>
+                <tbody id="tablaPrestaciones"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        async function cargarOdontogramas() {
+            const res = await fetch('/api/odontogramas');
+            const data = await res.json();
+            document.getElementById('tablaOdontogramas').innerHTML = data.map(o => 
+                `<tr><td>${o.id_odontograma}</td><td>${o.id_paciente}</td><td>${o.fecha_creacion}</td><td>${o.observaciones || '-'}</td></tr>`
+            ).join('');
+        }
+
+        async function cargarPrestaciones() {
+            const res = await fetch('/api/prestaciones');
+            const data = await res.json();
+            document.getElementById('tablaPrestaciones').innerHTML = data.map(pr => 
+                `<tr><td>${pr.id_prestacion}</td><td>${pr.nombre_prestacion}</td><td>${pr.descripcion || '-'}</td><td>$${pr.costo}</td></tr>`
+            ).join('');
+        }
+
+        document.getElementById('odontogramaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch('/api/odontogramas', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    id_paciente: parseInt(document.getElementById('od_id_paciente').value),
+                    fecha_creacion: document.getElementById('od_fecha').value,
+                    observaciones: document.getElementById('od_obs').value.trim() || null
+                })
+            });
+            if (res.ok) { e.target.reset(); cargarOdontogramas(); }
+        });
+
+        document.getElementById('prestacionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch('/api/prestaciones', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    nombre_prestacion: document.getElementById('pr_nombre').value.trim(),
+                    descripcion: document.getElementById('pr_descripcion').value.trim() || null,
+                    costo: parseFloat(document.getElementById('pr_costo').value)
+                })
+            });
+            if (res.ok) { e.target.reset(); cargarPrestaciones(); }
+        });
+
+        cargarOdontogramas();
+        cargarPrestaciones();
+    </script>
+</body>
+</html>

@@ -5,15 +5,21 @@ python3 -m venv venv
 source venv/bin/activate
 
 uvicorn main:app
+SI SE TRABA: uvicorn main:app --reload --port 8001
 
 Abre el navegador e ingresa a http://localhost:8000.
 
     Usuario por defecto: admin
 
-    Contraseña por defecto: admin123
+    Contraseña por defecto: admin
 
 
 
 SINO FUNCIONA EJECUTAR:
 pip install fastapi
 pip install uvicorn
+
+GIT
+git add .
+git commit -m "mensaje"
+git push

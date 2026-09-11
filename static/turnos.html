@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DentalMatic - Turnos</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="header-bar">
+        <h1>DentalMatic - Agendamiento de Turnos</h1>
+        <a href="/dashboard" class="btn">Volver al Dashboard</a>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h2>Agendar Turno</h2>
+            <form id="turnoForm" class="grid-2" style="margin-top: 1rem;">
+                <div class="form-group"><input type="number" id="t_id_paciente" placeholder="ID Paciente *" required></div>
+                <div class="form-group"><input type="number" id="t_id_odontologo" placeholder="ID Odontólogo *" required></div>
+                <div class="form-group"><input type="datetime-local" id="t_fecha" required></div>
+                <div class="form-group"><input type="text" id="t_motivo" placeholder="Motivo de la consulta"></div>
+                <div><button type="submit" class="btn">Confirmar Turno</button></div>
+            </form>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>ID Paciente</th><th>ID Odontólogo</th><th>Fecha/Hora</th><th>Motivo</th><th>Estado</th></tr>
+                </thead>
+                <tbody id="tablaTurnos"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        async function cargarTurnos() {
+            const res = await fetch('/api/turnos');
+            const data = await res.json();
+            document.getElementById('tablaTurnos').innerHTML = data.map(t => 
+                `<tr><td>${t.id_turno}</td><td>${t.id_paciente}</td><td>${t.id_odontologo}</td><td>${t.fecha_hora}</td><td>${t.motivo || '-'}</td><td>${t.estado}</td></tr>`
+            ).join('');
+        }
+
+        document.getElementById('turnoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch('/api/turnos', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    id_paciente: parseInt(document.getElementById('t_id_paciente').value),
+                    id_odontologo: parseInt(document.getElementById('t_id_odontologo').value),
+                    fecha_hora: document.getElementById('t_fecha').value,
+                    motivo: document.getElementById('t_motivo').value.trim() || null,
+                    estado: 'pendiente'
+                })
+            });
+            if (res.ok) { e.target.reset(); cargarTurnos(); }
+            else { alert('Error al agendar el turno'); }
+        });
+
+        cargarTurnos();
+    </script>
+</body>
+</html>

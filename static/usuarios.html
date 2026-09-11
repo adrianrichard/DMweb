@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DentalMatic - Usuarios</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="header-bar">
+        <h1>DentalMatic - Usuarios</h1>
+        <a href="/dashboard" class="btn">Volver al Dashboard</a>
+    </div>
+    <div class="container">
+        <div class="card">
+            <h2>Crear Nuevo Usuario</h2>
+            <form id="usuarioForm" class="grid-2" style="margin-top: 1rem;">
+                <div class="form-group"><input type="text" id="u_nombre" placeholder="Nombre de usuario *" required></div>
+                <div class="form-group"><input type="password" id="u_pass" placeholder="Contraseña *" required></div>
+                <div class="form-group">
+                    <select id="u_tipo">
+                        <option value="administrador">Administrador</option>
+                        <option value="odontologo">Odontólogo</option>
+                        <option value="recepcionista">Recepcionista</option>
+                    </select>
+                </div>
+                <div><button type="submit" class="btn">Guardar Usuario</button></div>
+            </form>
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Usuario</th><th>Rol</th></tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        async function cargarUsuarios() {
+            const res = await fetch('/api/usuarios');
+            const data = await res.json();
+            document.getElementById('tablaUsuarios').innerHTML = data.map(u => 
+                `<tr><td>${u.id_usuario}</td><td>${u.nombre_usuario}</td><td>${u.tipo_usuario}</td></tr>`
+            ).join('');
+        }
+
+        document.getElementById('usuarioForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const res = await fetch('/api/usuarios', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    nombre_usuario: document.getElementById('u_nombre').value.trim(),
+                    pass_usuario: document.getElementById('u_pass').value.trim(),
+                    tipo_usuario: document.getElementById('u_tipo').value
+                })
+            });
+            if (res.ok) { e.target.reset(); cargarUsuarios(); }
+            else { const err = await res.json(); alert(err.detail || 'Error al guardar'); }
+        });
+
+        cargarUsuarios();
+    </script>
+</body>
+</html>

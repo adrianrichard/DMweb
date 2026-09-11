@@ -30,12 +30,12 @@
     </div>
 
     <script>
-        // Validar sesión antes de redirigir
+        // Validar sesión si ya existe
         try {
             const storedUser = localStorage.getItem('user');
             if (storedUser) {
                 const user = JSON.parse(storedUser);
-                if (user && (user.usuario || user.nombre_usuario)) {
+                if (user && user.nombre_usuario) {
                     window.location.href = '/dashboard';
                 } else {
                     localStorage.removeItem('user');
@@ -48,36 +48,33 @@
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const usernameInput = document.getElementById('username').value.trim();
-            const passwordInput = document.getElementById('password').value.trim();
             const errorDiv = document.getElementById('errorMessage');
-
             errorDiv.style.display = 'none';
-            errorDiv.innerText = '';
+
+            const nombreUsuario = document.getElementById('username').value.trim();
+            const passUsuario = document.getElementById('password').value.trim();
 
             try {
-                const response = await fetch('/api/login', {
+                const respuesta = await fetch('/api/login', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        username: usernameInput,
-                        password: passwordInput
+                        nombre_usuario: nombreUsuario,
+                        pass_usuario: passUsuario
                     })
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    localStorage.setItem('user', JSON.stringify(data));
+                if (respuesta.ok) {
+                    const data = await respuesta.json();
+                    localStorage.setItem('user', JSON.stringify(data.usuario));
                     window.location.href = '/dashboard';
                 } else {
-                    errorDiv.innerText = data.detail || 'Error al iniciar sesión';
+                    const error = await respuesta.json();
+                    errorDiv.textContent = error.detail || 'Error al iniciar sesión';
                     errorDiv.style.display = 'block';
                 }
             } catch (err) {
-                errorDiv.innerText = 'No se pudo conectar con el servidor. Revisa que el backend esté ejecutándose.';
+                errorDiv.textContent = 'Error de conexión con el servidor';
                 errorDiv.style.display = 'block';
             }
         });
