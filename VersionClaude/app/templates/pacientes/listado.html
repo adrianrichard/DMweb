@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Pacientes - DENTALMATIC{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Pacientes</h2>
+    <a href="{{ url_for('pacientes.nuevo') }}" class="btn btn-primary">+ Nuevo paciente</a>
+</div>
+
+<form method="get" class="mb-3">
+    <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Buscar por nombre, apellido o DNI...">
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>DNI</th>
+            <th>Apellido</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Obra Social</th>
+            <th>Edad</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in pacientes %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.apellido }}</td>
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.telefono }}</td>
+            <td>{{ p.obrasocial or "-" }}</td>
+            <td>{{ p.edad }}</td>
+            <td class="text-end">
+                <a href="{{ url_for('pacientes.editar', dni=p.id) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                <form method="post" action="{{ url_for('pacientes.eliminar', dni=p.id) }}" class="d-inline"
+                      onsubmit="return confirm('¿Desea eliminar a {{ p.apellido }}, {{ p.nombre }}?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="7" class="text-center text-muted">No hay pacientes cargados.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

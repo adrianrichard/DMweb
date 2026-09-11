@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Ingreso - DENTALMATIC{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-5">
+        <h2 class="mb-4 text-center">Inicio de sesión</h2>
+        <form method="post" novalidate>
+            {{ form.hidden_tag() }}
+
+            <div class="mb-3">
+                {{ form.nombre_usuario.label(class="form-label") }}
+                {{ form.nombre_usuario(class="form-control", autofocus=true) }}
+                {% for error in form.nombre_usuario.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.pass_usuario.label(class="form-label") }}
+                {{ form.pass_usuario(class="form-control") }}
+                {% for error in form.pass_usuario.errors %}
+                    <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            {{ form.submit(class="btn btn-primary w-100") }}
+        </form>
+    </div>
+</div>
+{% endblock %}

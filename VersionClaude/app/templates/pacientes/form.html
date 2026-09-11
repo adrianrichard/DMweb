@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Nuevo paciente' if modo == 'nuevo' else 'Editar paciente' }} - DENTALMATIC{% endblock %}
+{% block content %}
+<h2 class="mb-4">{{ 'Datos del paciente' if modo == 'nuevo' else 'Actualizar paciente' }}</h2>
+
+<form method="post" novalidate style="max-width: 500px;">
+    {{ form.hidden_tag() }}
+
+    {% if modo == 'nuevo' %}
+    <div class="mb-3">
+        {{ form.dni.label(class="form-label") }}
+        {{ form.dni(class="form-control") }}
+        {% for error in form.dni.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="mb-3">
+        <label class="form-label">D.N.I.</label>
+        <input type="text" class="form-control" value="{{ paciente.id }}" disabled>
+        <div class="form-text">El D.N.I. no se puede modificar una vez creado el paciente.</div>
+    </div>
+    {% endif %}
+
+    {% for field in [form.nombre, form.apellido, form.fecha_nacimiento,
+                      form.domicilio, form.telefono, form.email, form.obrasocial, form.nrosocio] %}
+    <div class="mb-3">
+        {{ field.label(class="form-label") }}
+        {{ field(class="form-control") }}
+        {% for error in field.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <p class="text-muted small">* Todos los campos son obligatorios salvo Email, Obra Social y Nro de socio.</p>
+
+    <div class="d-flex gap-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('pacientes.listado') }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}
