@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Nuevo usuario' if modo == 'nuevo' else 'Editar usuario' }} - DENTALMATIC{% endblock %}
+{% block content %}
+<h2 class="mb-4">{{ 'Crear usuario' if modo == 'nuevo' else 'Actualizar usuario' }}</h2>
+
+<form method="post" novalidate style="max-width: 500px;">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-3">
+        {{ form.nombre_usuario.label(class="form-label") }}
+        {{ form.nombre_usuario(class="form-control") }}
+        {% for error in form.nombre_usuario.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form.tipo_usuario.label(class="form-label") }}
+        {{ form.tipo_usuario(class="form-select") }}
+        {% for error in form.tipo_usuario.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form.clave.label(class="form-label") }}
+        {{ form.clave(class="form-control") }}
+        {% if modo == 'editar' %}
+            <div class="form-text">Dejar en blanco para no cambiar la contraseña actual.</div>
+        {% endif %}
+        {% for error in form.clave.errors %}
+            <div class="text-danger small">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <p class="text-muted small">
+        La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un dígito.
+    </p>
+
+    <div class="d-flex gap-2">
+        {{ form.submit(class="btn btn-primary") }}
+        <a href="{{ url_for('usuarios.listado') }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

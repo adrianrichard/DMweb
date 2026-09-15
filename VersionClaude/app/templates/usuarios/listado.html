@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Usuarios - DENTALMATIC{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Usuarios del sistema</h2>
+    <a href="{{ url_for('usuarios.nuevo') }}" class="btn btn-primary">+ Nuevo usuario</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Tipo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for u in usuarios %}
+        <tr>
+            <td>{{ u.nombre_usuario }}</td>
+            <td>{{ u.tipo_usuario }}</td>
+            <td class="text-end">
+                <a href="{{ url_for('usuarios.editar', id_usuario=u.id_usuario) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                {% if u.id_usuario != current_user.id_usuario %}
+                <form method="post" action="{{ url_for('usuarios.eliminar', id_usuario=u.id_usuario) }}" class="d-inline"
+                      onsubmit="return confirm('¿Desea eliminar a {{ u.nombre_usuario }}?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="3" class="text-center text-muted">No hay usuarios cargados.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

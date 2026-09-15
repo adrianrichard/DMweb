@@ -55,6 +55,9 @@ def create_app(config_name="default"):
     from app.odontologos import odontologos_bp
     app.register_blueprint(odontologos_bp, url_prefix="/odontologos")
 
+    from app.usuarios import usuarios_bp
+    app.register_blueprint(usuarios_bp, url_prefix="/usuarios")
+
     # NOTA: turnos todavía no está creado.
     # Cuando armemos ese blueprint, se agrega acá así:
     # from app.turnos import turnos_bp
@@ -65,10 +68,14 @@ def create_app(config_name="default"):
     register_cli_commands(app)
 
     # --- Ruta raíz: redirige al login (o al dashboard si ya está logueado) ---
-    from flask import redirect, url_for
+    from flask import redirect, url_for, render_template
 
     @app.route("/")
     def index():
         return redirect(url_for("auth.login"))
+
+    @app.errorhandler(403)
+    def acceso_denegado(e):
+        return render_template("errors/403.html"), 403
 
     return app
